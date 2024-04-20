@@ -11,7 +11,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
-@RestController("/products")
+@RestController
+@RequestMapping("/products")
 public class ProductController {
 
    private ProductService productService;
@@ -21,42 +22,45 @@ public class ProductController {
        this.productService = productService;
    }
     @GetMapping
-    public List<Product> getAllProducts(){
-        return new ArrayList<>();
+    public ResponseEntity<List<Product>> getAllProducts() throws ProductNotFoundException{
+        try {
+            List<Product> products = productService.getAllProducts();
+            return ResponseEntity.ok(products);
+        } catch (ProductNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Product> getSingleProduct(@PathVariable("id") Long id) throws ProductNotFoundException {
         try {
-            System.out.println("Controller: Retrieving product with ID " + id);
             Product product = productService.getSingleProduct(id);
-            System.out.println("Controller: Product retrieved successfully: " + product);
             return ResponseEntity.ok(product);
         } catch (ProductNotFoundException e) {
-            System.out.println("Controller: Product not found for ID " + id);
             return ResponseEntity.notFound().build();
         }
     }
 
     @PostMapping
-    public Product addNewProduct(@RequestBody Product product){
-        Product p = new Product();
-        return  new Product();
+    public ResponseEntity<Product> addNewProduct(@RequestBody Product product){
+        return productService.addNewProduct(product);
     }
 
     @PatchMapping("/{id}")
-    public Product updateProduct(@PathVariable("id") Long id, @RequestBody Product product){
-        return new Product();
+    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody Product product)
+    throws ProductNotFoundException{
+        return productService.updateProduct(id, product);
     }
 
     @PutMapping("/{id}")
-    public Product replaceProduct(@PathVariable("id") Long id, @RequestBody Product product){
-        return new Product();
+    public ResponseEntity<Product> replaceProduct(@PathVariable("id") Long id, @RequestBody Product product){
+        return productService.replaceProduct(id, product);
     }
 
     @DeleteMapping("/{id}")
-    public Product deleteProduct(@PathVariable("id") Long id){
-        return new Product();
+    public ResponseEntity<Product> deleteProduct(@PathVariable("id") Long id) throws ProductNotFoundException {
+        return productService.deleteProduct(id);
     }
 
 
